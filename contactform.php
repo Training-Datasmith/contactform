@@ -489,7 +489,7 @@ class Contactform extends Module implements WidgetInterface
                 $ct = new CustomerThread($id_customer_thread);
                 $ct->status = 'open';
                 $ct->id_lang = (int) $this->context->language->id;
-                $ct->id_contact = (int) $id_contact;
+                $ct->id_contact = $id_contact;
                 $ct->id_order = $id_order;
 
                 if ($id_product = (int) Tools::getValue('id_product')) {
@@ -507,7 +507,7 @@ class Contactform extends Module implements WidgetInterface
                 if ($id_product = (int) Tools::getValue('id_product')) {
                     $ct->id_product = $id_product;
                 }
-                $ct->id_contact = (int) $id_contact;
+                $ct->id_contact = $id_contact;
                 $ct->id_lang = (int) $this->context->language->id;
                 $ct->email = $from;
                 $ct->status = 'open';
@@ -535,11 +535,7 @@ class Contactform extends Module implements WidgetInterface
                      * Adjust user agent length depending on PrestaShop version used.
                      * The limit was raised on 9.0.2.
                      */
-                    if (version_compare(_PS_VERSION_, '9.0.2', '>=')) {
-                        $cm->user_agent = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255);
-                    } else {
-                        $cm->user_agent = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 128);
-                    }
+                    $cm->user_agent = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 128);
 
                     if (!$cm->add()) {
                         $this->context->controller->errors[] = $this->trans(
