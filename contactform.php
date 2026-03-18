@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -32,16 +34,16 @@ use PrestaShop\PrestaShop\Core\Module\WidgetInterface;
 class Contactform extends Module implements WidgetInterface
 {
     /** @var string */
-    const SEND_CONFIRMATION_EMAIL = 'CONTACTFORM_SEND_CONFIRMATION_EMAIL';
+    public const SEND_CONFIRMATION_EMAIL = 'CONTACTFORM_SEND_CONFIRMATION_EMAIL';
 
     /** @var string */
-    const SEND_NOTIFICATION_EMAIL = 'CONTACTFORM_SEND_NOTIFICATION_EMAIL';
+    public const SEND_NOTIFICATION_EMAIL = 'CONTACTFORM_SEND_NOTIFICATION_EMAIL';
 
     /** @var string */
-    const MESSAGE_PLACEHOLDER_FOR_OLDER_VERSION = '(hidden)';
+    public const MESSAGE_PLACEHOLDER_FOR_OLDER_VERSION = '(hidden)';
 
     /** @var string */
-    const SUBMIT_NAME = 'update-configuration';
+    public const SUBMIT_NAME = 'update-configuration';
 
     /** @var Contact */
     protected $contact;
