@@ -315,7 +315,7 @@ class Contactform extends Module implements WidgetInterface
      */
     protected function createNewToken()
     {
-        $this->context->cookie->contactFormToken = md5(uniqid());
+        $this->context->cookie->contactFormToken = bin2hex(random_bytes(16));
         $this->context->cookie->contactFormTokenTTL = time() + 600;
 
         return $this;
