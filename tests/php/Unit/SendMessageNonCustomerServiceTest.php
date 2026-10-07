@@ -2,20 +2,36 @@
 
 class SendMessageNonCustomerServiceTest extends ContactformTestCase
 {
-    public function testNonCustomerServiceWithNotificationOffFailsForBothConfirmationSettings()
+    public function testNonCustomerServiceWithNotificationOffAndConfirmationOffFails()
     {
-        foreach ([0, 1] as $sendConfirmation) {
-            Mail::reset();
-            Configuration::reset([
-                Contactform::SEND_CONFIRMATION_EMAIL => $sendConfirmation,
-                Contactform::SEND_NOTIFICATION_EMAIL => 0,
-            ]);
-            $this->seedValidSubmit(['id_contact' => 2]);
-            $this->module->sendMessage();
+        $this->context->controller->errors = [];
+        $this->context->controller->success = [];
+        Mail::reset();
+        Configuration::reset([
+            Contactform::SEND_CONFIRMATION_EMAIL => 0,
+            Contactform::SEND_NOTIFICATION_EMAIL => 0,
+        ]);
+        $this->seedValidSubmit(['id_contact' => 2]);
+        $this->module->sendMessage();
 
-            $this->assertCount(1, $this->context->controller->errors);
-            $this->assertSame(0, count(Mail::$calls));
-        }
+        $this->assertCount(1, $this->context->controller->errors);
+        $this->assertSame(0, count(Mail::$calls));
+    }
+
+    public function testNonCustomerServiceWithNotificationOffAndConfirmationOnFails()
+    {
+        $this->context->controller->errors = [];
+        $this->context->controller->success = [];
+        Mail::reset();
+        Configuration::reset([
+            Contactform::SEND_CONFIRMATION_EMAIL => 1,
+            Contactform::SEND_NOTIFICATION_EMAIL => 0,
+        ]);
+        $this->seedValidSubmit(['id_contact' => 2]);
+        $this->module->sendMessage();
+
+        $this->assertCount(1, $this->context->controller->errors);
+        $this->assertSame(0, count(Mail::$calls));
     }
 
     public function testNonCustomerServiceWithNotificationOnlySucceeds()
