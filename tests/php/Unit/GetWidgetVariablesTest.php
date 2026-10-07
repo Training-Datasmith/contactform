@@ -13,6 +13,21 @@ class GetWidgetVariablesTest extends ContactformTestCase
         $this->assertLessThanOrEqual(time() + 600, $this->context->cookie->contactFormTokenTTL);
     }
 
+    public function testLooseEqualThreadTokenDoesNotExposeThreadEmail()
+    {
+        CustomerThreadRepository::$threads[3] = [
+            'id' => 3,
+            'email' => 'thread@example.com',
+            'token' => '1e0',
+            'id_contact' => 1,
+        ];
+        Tools::setValue('id_customer_thread', 3);
+        Tools::setValue('token', '1');
+
+        $vars = $this->module->getWidgetVariables();
+        $this->assertNotSame('thread@example.com', $vars['contact']['email']);
+    }
+
     public function testNonStringThreadTokenDoesNotExposeThread()
     {
         CustomerThreadRepository::$threads[3] = [

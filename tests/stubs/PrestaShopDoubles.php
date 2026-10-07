@@ -72,14 +72,15 @@ namespace {
 
         public function isHookableOn($hookName)
         {
-            $needle = strtolower($hookName);
-            foreach ($this->hooks as $hook) {
-                if (strtolower($hook) === $needle) {
+            if ($this instanceof \PrestaShop\PrestaShop\Core\Module\WidgetInterface) {
+                if (Hook::isDisplayHookName($hookName)) {
                     return true;
                 }
             }
 
-            return false;
+            $method = 'hook' . ucfirst($hookName);
+
+            return is_callable([$this, $method]);
         }
 
         public function display($file, $template)
@@ -90,6 +91,20 @@ namespace {
         protected function l($string, $specific = false, $locale = null)
         {
             return $string;
+        }
+    }
+
+    class Hook
+    {
+        public static function isDisplayHookName($hookName)
+        {
+            $hookName = strtolower($hookName);
+
+            if ($hookName === 'header' || $hookName === 'displayheader') {
+                return false;
+            }
+
+            return strpos($hookName, 'display') === 0;
         }
     }
 

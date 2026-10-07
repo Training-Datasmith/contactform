@@ -16,7 +16,7 @@ class SendMessageMailTest extends ContactformTestCase
         $call = Mail::$calls[0];
         $this->assertSame('contact', $call['template']);
         $this->assertSame('service@example.com', $call['to']);
-        $this->assertSame($this->prestashopNl2brMessage(stripslashes($message)), $call['var_list']['{message}']);
+        $this->assertSame('Line one<br />Line two', $call['var_list']['{message}']);
         $this->assertSame('customer@example.com', $call['var_list']['{email}']);
     }
 

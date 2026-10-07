@@ -21,13 +21,16 @@ jobs:
         working-directory: tools
         run: |
           curl -sS https://getcomposer.org/download/2.2.24/composer.phar -o composer.phar
-          php7.2 composer.phar install --no-interaction
+          php composer.phar install --no-interaction
 
       - name: Run PHPUnit (shuffled suite)
-        run: php7.2 tools/vendor/bin/phpunit -c tests/phpunit.xml
+        run: php tools/vendor/bin/phpunit -c tests/phpunit.xml
 
       - name: Run PHPUnit (9.0.2 user agent)
-        run: PS_VERSION_UNDER_TEST=9.0.2 php7.2 tools/vendor/bin/phpunit -c tests/phpunit.xml tests/php/Unit/UserAgentVersion902Test.php
+        run: PS_VERSION_UNDER_TEST=9.0.2 php tools/vendor/bin/phpunit -c tests/phpunit.xml tests/php/Unit/UserAgentVersion902Test.php
+
+      - name: Run PHPUnit (pre-8.0 stripslashes)
+        run: PS_VERSION_UNDER_TEST=7.9.9 php tools/vendor/bin/phpunit -c tests/phpunit.xml tests/php/Unit/SendMessageStripslashesPre8Test.php
 
   php-linter:
     name: PHP Syntax check

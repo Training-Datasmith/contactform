@@ -21,6 +21,7 @@ class ContactTemplateTest extends ContactformTestCase
             'id_module' => 42,
         ]);
 
+        $this->assertContains('type="hidden"', $html);
         $this->assertContains('name="id_contact"', $html);
         $this->assertContains('name="from"', $html);
         $this->assertContains('name="message"', $html);

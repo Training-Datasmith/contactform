@@ -10,6 +10,7 @@
         <testsuite name="ContactformModuleTests">
             <directory suffix="Test.php">php/Unit</directory>
             <exclude>php/Unit/UserAgentVersion902Test.php</exclude>
+            <exclude>php/Unit/SendMessageStripslashesPre8Test.php</exclude>
         </testsuite>
     </testsuites>
     <listeners>

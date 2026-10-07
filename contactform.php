@@ -576,7 +576,7 @@ class Contactform extends Module implements WidgetInterface
         $sendConfirmationEmail = Configuration::get(self::SEND_CONFIRMATION_EMAIL);
         $sendNotificationEmail = Configuration::get(self::SEND_NOTIFICATION_EMAIL);
 
-        if (!$contact->customer_service && !$sendNotificationEmail && !$sendConfirmationEmail) {
+        if (!$contact->customer_service && !$sendNotificationEmail) {
             $this->context->controller->errors[] = $this->trans(
                 'An error occurred while sending the message.',
                 [],
