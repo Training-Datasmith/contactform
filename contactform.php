@@ -43,7 +43,7 @@ class Contactform extends Module implements WidgetInterface
     /** @var string */
     const SUBMIT_NAME = 'update-configuration';
 
-    /** @var Contact */
+    /** @var array<string, mixed> */
     protected $contact;
 
     /** @var array */
@@ -273,7 +273,7 @@ class Contactform extends Module implements WidgetInterface
         ) {
             $cm = new CustomerThread($id_customer_thread);
 
-            if ($cm->token == $token) {
+            if (is_string($token) && $cm->token === $token) {
                 $this->customer_thread = $this->context->controller->objectPresenter->present($cm);
             }
         }
@@ -331,7 +331,9 @@ class Contactform extends Module implements WidgetInterface
             $contacts[$one_contact['id_contact']] = $one_contact;
         }
 
-        if (!empty($this->customer_thread['id_contact'])) {
+        if (!empty($this->customer_thread['id_contact'])
+            && isset($contacts[$this->customer_thread['id_contact']])
+        ) {
             return [
                 $contacts[$this->customer_thread['id_contact']],
             ];
@@ -378,9 +380,11 @@ class Contactform extends Module implements WidgetInterface
                       (int) $this->customer_thread['id_order'] :
                       0;
 
-            $orders[$id_order]['products'][(int) $this->customer_thread['id_product']] = $this->context->controller->objectPresenter->present(
-                new Product((int) $this->customer_thread['id_product'])
-            );
+            if (isset($orders[$id_order])) {
+                $orders[$id_order]['products'][(int) $this->customer_thread['id_product']] = $this->context->controller->objectPresenter->present(
+                    new Product((int) $this->customer_thread['id_product'])
+                );
+            }
         }
 
         return $orders;
@@ -393,7 +397,17 @@ class Contactform extends Module implements WidgetInterface
     public function sendMessage()
     {
         $extension = ['.txt', '.rtf', '.doc', '.docx', '.pdf', '.zip', '.png', '.jpeg', '.gif', '.jpg', '.webp'];
-        $file_attachment = Tools::fileAttachment('fileUpload');
+        $file_attachment = null;
+        if (Configuration::get('PS_CUSTOMER_SERVICE_FILE_UPLOAD')) {
+            $file_attachment = Tools::fileAttachment('fileUpload');
+            if (null === $file_attachment && !empty($_FILES['fileUpload']['name'])) {
+                $this->context->controller->errors[] = $this->trans(
+                    'An error occurred during the file-upload process.',
+                    [],
+                    'Modules.Contactform.Shop'
+                );
+            }
+        }
         $message = trim(Tools::getValue('message'));
         $url = Tools::getValue('url');
         $clientToken = Tools::getValue('token');
@@ -433,14 +447,14 @@ class Contactform extends Module implements WidgetInterface
             );
         }
 
-        if (!empty($file_attachment['name']) && $file_attachment['error'] != 0) {
+        if (!empty($file_attachment) && !empty($file_attachment['name']) && $file_attachment['error'] != 0) {
             $this->context->controller->errors[] = $this->trans(
                 'An error occurred during the file-upload process.',
                 [],
                 'Modules.Contactform.Shop'
             );
         }
-        if (!empty($file_attachment['name']) &&
+        if (!empty($file_attachment) && !empty($file_attachment['name']) &&
                   !in_array(Tools::strtolower(Tools::substr($file_attachment['name'], -4)), $extension) &&
                   !in_array(Tools::strtolower(Tools::substr($file_attachment['name'], -5)), $extension)
         ) {
@@ -520,7 +534,7 @@ class Contactform extends Module implements WidgetInterface
                 $testFileUpload = (isset($file_attachment['rename']) && !empty($file_attachment['rename']));
 
                 // if last message is the same as new message (and no file upload), do not consider this contact
-                if ($lastMessage != $message || $testFileUpload) {
+                if ($lastMessage !== $message || $testFileUpload) {
                     $cm = new CustomerMessage();
                     $cm->id_customer_thread = $ct->id;
                     $cm->message = $message;
@@ -562,11 +576,19 @@ class Contactform extends Module implements WidgetInterface
         $sendConfirmationEmail = Configuration::get(self::SEND_CONFIRMATION_EMAIL);
         $sendNotificationEmail = Configuration::get(self::SEND_NOTIFICATION_EMAIL);
 
+        if (!$contact->customer_service && !$sendNotificationEmail && !$sendConfirmationEmail) {
+            $this->context->controller->errors[] = $this->trans(
+                'An error occurred while sending the message.',
+                [],
+                'Modules.Contactform.Shop'
+            );
+        }
+
         if (!count($this->context->controller->errors)
             && empty($mailAlreadySend)
             && ($sendConfirmationEmail || $sendNotificationEmail)
         ) {
-            $message = version_compare(_PS_VERSION_, '8.0.0', '>=') ? stripslashes($message) : Tools::stripslashes($message);
+            $message = stripslashes($message);
             $var_list = [
                 '{firstname}' => '',
                 '{lastname}' => '',
@@ -582,7 +604,7 @@ class Contactform extends Module implements WidgetInterface
                 $var_list['{lastname}'] = $customer->lastname;
             }
 
-            if (isset($file_attachment['name'])) {
+            if (!empty($file_attachment) && isset($file_attachment['name'])) {
                 $var_list['{attached_file}'] = $file_attachment['name'];
             }
             $id_product = (int) Tools::getValue('id_product');
@@ -648,7 +670,7 @@ class Contactform extends Module implements WidgetInterface
                     null,
                     null,
                     null,
-                    $file_attachment,
+                    null,
                     null,
                     _PS_MAIL_DIR_,
                     false,

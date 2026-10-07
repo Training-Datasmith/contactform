@@ -1,0 +1,14 @@
+{
+    "name": "prestashop/contactform-test-tools",
+    "description": "PHPUnit and Smarty for contactform module tests (PHP 7.2)",
+    "require": {
+        "php": ">=7.2",
+        "phpunit/phpunit": "4.8.36",
+        "smarty/smarty": "3.1.48"
+    },
+    "config": {
+        "platform": {
+            "php": "7.2.34"
+        }
+    }
+}

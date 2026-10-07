@@ -1,3 +1,4 @@
 /.php_cs.cache
 /config_*.xml
 /vendor/
+/tools/vendor/
